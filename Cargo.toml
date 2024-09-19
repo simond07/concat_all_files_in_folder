@@ -1,0 +1,9 @@
+[package]
+name = "concat_all_files_in_folder"
+authors = ["simond07 <https://github.com/simond07>"]
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+arboard = "3.4.1"
+clap = { version = "4.5.17", features = ["derive"] }
