@@ -34,6 +34,8 @@ fn helper() {
 ```
 
 ## Future Features
+- [ ] Function without options and choose the current directory
+- [ ] Function on folders without dots and slashes
 - [ ] Add option to ignore certain files
 - [ ] Add option to ignore certain folders
 - [ ] Add option to ignore files and folders in .gitignore
