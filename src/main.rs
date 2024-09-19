@@ -53,6 +53,17 @@ fn main() {
     }
 }
 
+fn is_utf8(file_path: &Path) -> bool {
+    if let Ok(mut file) = fs::File::open(file_path) {
+        let mut buffer = Vec::new();
+        if file.read_to_end(&mut buffer).is_ok() {
+            return String::from_utf8(buffer).is_ok();
+        }
+    }
+    false
+}
+
+
 fn process_folder(path: &Path, starting_path: &Path, hidden_files_and_folders: bool, result: &mut String) {
     // iterate over files and folders:
     // if file add shortend path to result, add """, add content to result, add """
@@ -62,12 +73,13 @@ fn process_folder(path: &Path, starting_path: &Path, hidden_files_and_folders: b
         let path = entry.path();
         // hidden files and folders
         if !path.file_name().unwrap().to_str().unwrap().starts_with('.') || hidden_files_and_folders {
-            if path.is_file() {
+            if path.is_file() && is_utf8(&path) {
                 // println!("Processed file: {:?}", path);
-                let file = fs::read_to_string(&path).expect(&format!("Failed to read file: {:?}", path));
-                let relative_path = path.strip_prefix(starting_path).unwrap_or(&path);
-                result.push_str(&format!("\"{}\"\n", relative_path.to_str().unwrap()));
-                result.push_str(&format!("\"\"\"\n{}\n\"\"\"\n\n", file.replace("\"", "\\\"")));
+                if let Ok(file_content) = fs::read_to_string(&path) {
+                    let relative_path = path.strip_prefix(starting_path).unwrap_or(&path);
+                    result.push_str(&format!("\"{}\"\n", relative_path.to_str().unwrap()));
+                    result.push_str(&format!("\"\"\"\n{}\n\"\"\"\n\n", file_content.replace("\"", "\\\"")));
+                }
             } else if path.is_dir() {
                 process_folder(&path, starting_path, hidden_files_and_folders, result);
             } else {
