@@ -1,8 +1,12 @@
 [package]
 name = "concat_all_files_in_folder"
 authors = ["simond07 <https://github.com/simond07>"]
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
+
+[[bin]]
+name = "concat_all_files_in_folder"
+path = "src/main.rs"
 
 [dependencies]
 arboard = "3.4.1"
