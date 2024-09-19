@@ -1,3 +1,5 @@
+permissions:
+  contents: write
 name: Release
 on:
   # schedule:
@@ -11,7 +13,7 @@ on:
 env:
   BIN_NAME: concat_all_files_in_folder
   PROJECT_NAME: concat_all_files_in_folder
-  REPO_NAME: simond07/concat_all_files_in_folder
+  REPO_NAME: ${{ github.repository }}
 
 jobs:
   dist:
