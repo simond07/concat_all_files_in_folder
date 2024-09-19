@@ -2,6 +2,7 @@ use clap::Parser;
 use std::path::{Path, PathBuf};
 use std::fs;
 use arboard::Clipboard;
+use std::io::Read;
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
@@ -24,19 +25,18 @@ struct Args {
 }
 
 fn main() {
+    let args: Args = Args::parse();
     let mut result = String::new();
     
-    let args: Args = Args::parse();
     // Determine input folder
     let input_folder_path = args.input.unwrap_or_else(|| std::env::current_dir().unwrap());
     if !input_folder_path.is_dir() {
         panic!("Input path must be a folder");
     }
     println!("Input folder: {}", input_folder_path.display());
-    let starting_input_folder_path = input_folder_path.clone();
 
     // process folder
-    process_folder(&input_folder_path, &starting_input_folder_path, args.all_hidden_files_and_folders, &mut result);
+    process_folder(&input_folder_path, &input_folder_path, args.all_hidden_files_and_folders, &mut result);
 
     // Handle output
     if let Some(output_path) = args.output {
@@ -65,12 +65,11 @@ fn process_folder(path: &Path, starting_path: &Path, hidden_files_and_folders: b
             if path.is_file() {
                 // println!("Processed file: {:?}", path);
                 let file = fs::read_to_string(&path).expect(&format!("Failed to read file: {:?}", path));
-                let short_path = path.strip_prefix(starting_path.parent().unwrap().components().last().unwrap()).unwrap();
-                result.push_str(&format!("\"{}\"\n", short_path.to_str().unwrap()));
+                let relative_path = path.strip_prefix(starting_path).unwrap_or(&path);
+                result.push_str(&format!("\"{}\"\n", relative_path.to_str().unwrap()));
                 result.push_str(&format!("\"\"\"\n{}\n\"\"\"\n\n", file.replace("\"", "\\\"")));
             } else if path.is_dir() {
-                // println!("Processed folder: {:?}\n", path);
-                process_folder(&path, &starting_path, hidden_files_and_folders, result);
+                process_folder(&path, starting_path, hidden_files_and_folders, result);
             } else {
                 // println!("Processed some other file: {:?}\n", path);
             }
